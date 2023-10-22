@@ -2,25 +2,25 @@ const dotenv = require('dotenv').config();
 const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
+
 const io = require("socket.io")(server, { cors: { origin: "*" } });
 
 
 // Your AccountSID and Auth Token from console.twilio.com
-const accountSid = process.env.TWILIOSID;
-const authToken = process.env.TWILIOTOK;
-const client = require("twilio")(accountSid, authToken);
+// const accountSid = process.env.TWILIOSID;
+// const authToken = process.env.TWILIOTOK;
+// const client = require("twilio")(accountSid, authToken);
 
-function sendSMS(message) {
-  client.messages
-    .create({
-      body: message,
-      to: "+", // Text your number
-      from: "+", // From a valid Twilio number
-    })
-    .then((message) => console.log(message.sid));
-}
+// function sendSMS(message) {
+//   client.messages
+//     .create({
+//       body: message,
+//       to: "+", // Text your number
+//       from: "+", // From a valid Twilio number
+//     })
+//     .then((message) => console.log(message.sid));
+// }
 
-// app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   res.send("Running Server");
@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("pickup_status", data);
 
     if (data === "pickedup") {
-      sendSMS("pickedup garbage");
+      // sendSMS("pickedup garbage");
     }
   });
 
