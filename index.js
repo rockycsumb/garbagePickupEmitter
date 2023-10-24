@@ -7,19 +7,19 @@ const io = require("socket.io")(server, { cors: { origin: "*" } });
 
 
 // Your AccountSID and Auth Token from console.twilio.com
-// const accountSid = process.env.TWILIOSID;
-// const authToken = process.env.TWILIOTOK;
-// const client = require("twilio")(accountSid, authToken);
+const accountSid = process.env.TWILIOSID;
+const authToken = process.env.TWILIOTOK;
+const client = require("twilio")(accountSid, authToken);
 
-// function sendSMS(message) {
-//   client.messages
-//     .create({
-//       body: message,
-//       to: "+", // Text your number
-//       from: "+", // From a valid Twilio number
-//     })
-//     .then((message) => console.log(message.sid));
-// }
+function sendSMS(message) {
+  client.messages
+    .create({
+      body: message,
+      to: "+14088164655", // Text your number
+      from: "+18559355163", // From a valid Twilio number
+    })
+    .then((message) => console.log(message.sid));
+}
 
 
 app.get("/", (req, res) => {
@@ -29,6 +29,8 @@ app.get("/", (req, res) => {
 server.listen(3000, () => {
   console.log("server running...");
 });
+
+let pickupCounter = 0;
 
 io.on("connection", (socket) => {
   console.log("user connected ", socket.id);
@@ -40,11 +42,15 @@ io.on("connection", (socket) => {
   // });
 
   socket.on("pickup_status", (data) => {
-    console.log(data);
+    // console.log(data);
     socket.broadcast.emit("pickup_status", data);
 
-    if (data === "pickedup") {
-      // sendSMS("pickedup garbage");
+    if(data === "picked_up"){
+      pickupCounter++;
+    }
+
+    if (data === "picked_up" && pickupCounter === 1) {
+      sendSMS("Your garbage was picked up");
     }
   });
 

@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { FaStop } from "react-icons/fa";
 import * as moment from "moment";
-import "./garbagePickupDemoStyle.css";
+import "./garbagePickupEmitterStyle.css";
 import io from "socket.io-client";
 
 const socket = io.connect("http://localhost:3000");
@@ -37,8 +37,9 @@ const GarbagePickupDemo = (props) => {
   var detectInterval = useRef(null);
 
   var model = undefined;
-  var videoWidth = 360; //360 520
-  var videoHeight = 360; // 260 360;
+  var videoWidth = 416; //360 520
+  var videoHeight = 416; // 260 360;
+  const emptyTolerance = 30;
 
   useEffect(() => {
     loadModel();
@@ -218,6 +219,20 @@ const GarbagePickupDemo = (props) => {
     }
   };
 
+// Tolerance Function
+  let trashToleranceTicker = 0;
+  let trashToleranceTimer = undefined;
+  const emptyTrashTolerance = (start) => {
+    if (!start) {
+      clearInterval(trashToleranceTimer);
+    } else {
+      trashToleranceTimer = setInterval(() => {
+        trashToleranceTicker++;
+      }, 1000);
+    }
+    return trashToleranceTicker;
+  };
+
   //Detection stuff
   const detect = async (model) => {
     console.log("detect");
@@ -234,16 +249,17 @@ const GarbagePickupDemo = (props) => {
 
       if (detections.length > 0) {
         detections.forEach((el) => {
-          if (el.class === "garbageTruck" && el.confidence > 0.6) {
+          if (el.class === "garbageTruck" && el.confidence > 0.8) {
             truckPresent = true;
           }
 
           if (
             truckPresent &&
             el.class === "garbagePickingUp" &&
-            el.confidence > 0.6
+            el.confidence > 0.8
           ) {
             emptyingTrash = true;
+            emptyTrashTolerance(true);
             socket.emit("pickup_status", "emptying_trash")
             setTrashCanCss("trash-icon trash-icon-empty");
             setGarbageStatus("Emptying trash can!");
@@ -257,13 +273,14 @@ const GarbagePickupDemo = (props) => {
         restartDetection(2000);
       }
 
-      if (emptyingTrash && !truckPresent) {
+      if (emptyingTrash && !truckPresent && (trashToleranceTicker > emptyTolerance)) {
+        emptyingTrash = false;
+        emptyTrashTolerance(false);
         setTrashCanCss("trash-icon");
         setGarbageStatus("Emptied Trash Can!");
-        emptyingTrash = false;
         socket.emit("pickup_status", "picked_up")
-        stopCamera();
-        pickupTimes.push(moment().format("ddd, MM-DD-YYYY, h:mm a"));
+        // stopCamera();
+        // pickupTimes.push(moment().format("ddd, MM-DD-YYYY, h:mm a"));
       }
 
       const ctx = canvasRef.current.getContext("2d");

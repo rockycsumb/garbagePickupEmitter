@@ -38,7 +38,7 @@ section {
 }
 
 .container {
-  width: 400px;
+  width: 440px;
   margin-top: 20px;
   border: 2px solid rgb(221, 220, 220);
   border-radius: 5px;
@@ -221,8 +221,8 @@ section {
 
 .video-display-container {
   margin: 30px 0;
-  width: 360px;
-  height: 390px;
+  width: 416px;
+  height: 440px;
   /* border: 1px solid rgb(187, 187, 187); */
 }
 
