@@ -15,8 +15,8 @@ function sendSMS(message) {
   client.messages
     .create({
       body: message,
-      to: "+14088164655", // Text your number
-      from: "+18559355163", // From a valid Twilio number
+      to: "+", // Text your number
+      from: "+", // From a valid Twilio number
     })
     .then((message) => console.log(message.sid));
 }
@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
     }
 
     if (data === "picked_up" && pickupCounter === 1) {
-      sendSMS("Your garbage was picked up");
+      // sendSMS("Your garbage was picked up");
     }
   });
 
